@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.melot.talkee.agent.mapper.AgentAccountInfoMapper">
+  <resultMap id="BaseResultMap" type="com.melot.talkee.agent.domain.AgentAccountInfo">
+    <result column="account_id" jdbcType="INTEGER" property="accountId" />
+    <result column="agent_id" jdbcType="INTEGER" property="agentId" />
+    <result column="account_name" jdbcType="VARCHAR" property="accountName" />
+    <result column="account_type" jdbcType="INTEGER" property="accountType" />
+    <result column="account_address" jdbcType="VARCHAR" property="accountAddress" />
+    <result column="account_no" jdbcType="VARCHAR" property="accountNo" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+  </resultMap>
+
+  <insert id="insert" parameterType="com.melot.talkee.agent.domain.AgentAccountInfo">
+    insert into agent_account_info (account_id, agent_id, account_name, 
+      account_type, account_address, account_no, 
+      remark)
+    values (#{accountId,jdbcType=INTEGER}, #{agentId,jdbcType=INTEGER}, #{accountName,jdbcType=VARCHAR}, 
+      #{accountType,jdbcType=INTEGER}, #{accountAddress,jdbcType=VARCHAR}, #{accountNo,jdbcType=VARCHAR}, 
+      #{remark,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.melot.talkee.agent.domain.AgentAccountInfo">
+    insert into agent_account_info
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="accountId != null">
+        account_id,
+      </if>
+      <if test="agentId != null">
+        agent_id,
+      </if>
+      <if test="accountName != null">
+        account_name,
+      </if>
+      <if test="accountType != null">
+        account_type,
+      </if>
+      <if test="accountAddress != null">
+        account_address,
+      </if>
+      <if test="accountNo != null">
+        account_no,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="accountId != null">
+        #{accountId,jdbcType=INTEGER},
+      </if>
+      <if test="agentId != null">
+        #{agentId,jdbcType=INTEGER},
+      </if>
+      <if test="accountName != null">
+        #{accountName,jdbcType=VARCHAR},
+      </if>
+      <if test="accountType != null">
+        #{accountType,jdbcType=INTEGER},
+      </if>
+      <if test="accountAddress != null">
+        #{accountAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="accountNo != null">
+        #{accountNo,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer"  resultMap="BaseResultMap">
+   select   account_id, agent_id, account_name,
+      account_type, account_address, account_no,
+      remark  from agent_account_info where agent_id =#{agentId,jdbcType=INTEGER}
+  </select>
+
+  <update id="updateByPrimaryKeySelective" parameterType="com.melot.talkee.agent.domain.AgentAccountInfo">
+    update agent_account_info
+    <set>
+
+      <if test="accountName != null">
+        account_name = #{accountName,jdbcType=VARCHAR},
+      </if>
+      <if test="accountType != null">
+        account_type = #{accountType,jdbcType=INTEGER},
+      </if>
+      <if test="accountAddress != null">
+        account_address = #{accountAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="accountNo != null">
+        account_no = #{accountNo,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where account_id = #{accountId,jdbcType=INTEGER}
+  </update>
+
+</mapper>

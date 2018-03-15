@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.example.demo.mapper.AdminInfoMapper" >
-  <resultMap id="BaseResultMap" type="com.example.demo.domain.AdminInfo" >
+<mapper namespace="com.melot.talkee.agent.mapper.AdminInfoMapper" >
+  <resultMap id="BaseResultMap" type="com.melot.talkee.agent.domain.AdminInfo" >
     <id column="aid" property="aid" jdbcType="INTEGER" />
     <result column="relname" property="relname" jdbcType="VARCHAR" />
     <result column="login_name" property="loginName" jdbcType="VARCHAR" />
@@ -29,7 +29,7 @@
     delete from admin_info
     where aid = #{aid,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.example.demo.domain.AdminInfo" >
+  <insert id="insert" parameterType="com.melot.talkee.agent.domain.AdminInfo" >
     insert into admin_info (aid, relname, login_name, 
       password, phone, account_state, 
       last_login_time, last_login_ip, add_time, 
@@ -41,7 +41,7 @@
       #{portraitId,jdbcType=INTEGER}, #{userType,jdbcType=INTEGER}, #{channelId,jdbcType=INTEGER}
       )
   </insert>
-  <insert id="insertSelective" parameterType="com.example.demo.domain.AdminInfo" >
+  <insert id="insertSelective" parameterType="com.melot.talkee.agent.domain.AdminInfo" >
     insert into admin_info
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="aid != null" >
@@ -120,7 +120,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.example.demo.domain.AdminInfo" >
+  <update id="updateByPrimaryKeySelective" parameterType="com.melot.talkee.agent.domain.AdminInfo" >
     update admin_info
     <set >
       <if test="relname != null" >
@@ -159,7 +159,7 @@
     </set>
     where aid = #{aid,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.example.demo.domain.AdminInfo" >
+  <update id="updateByPrimaryKey" parameterType="com.melot.talkee.agent.domain.AdminInfo" >
     update admin_info
     set relname = #{relname,jdbcType=VARCHAR},
       login_name = #{loginName,jdbcType=VARCHAR},

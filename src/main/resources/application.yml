@@ -12,4 +12,6 @@ spring:
 
 mybatis:
   mapper-locations: classpath:mapping/*.xml
+agent:
+  promotionUrl: http://mobile.kktalkee.com/register#/index?channel=
 

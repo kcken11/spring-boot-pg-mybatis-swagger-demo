@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.melot.talkee.agent.mapper.AgentInfoMapper">
+  <resultMap id="BaseResultMap" type="com.melot.talkee.agent.domain.AgentInfo">
+    <id column="agent_id" jdbcType="INTEGER" property="agentId" />
+    <result column="agent_name" jdbcType="VARCHAR" property="agentName" />
+    <result column="login_name" jdbcType="VARCHAR" property="loginName" />
+    <result column="city_id" jdbcType="INTEGER" property="cityId" />
+    <result column="contact_qq" jdbcType="VARCHAR" property="contactqq" />
+    <result column="contact_wechat" jdbcType="VARCHAR" property="contactWechat" />
+    <result column="add_time" jdbcType="TIMESTAMP" property="addTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="last_login_time" jdbcType="TIMESTAMP" property="lastLoginTime" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="creatorId" jdbcType="INTEGER" property="creatorId" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    agent_id, agent_name, login_name, city_id, contact_qq, contact_wechat, add_time, 
+    update_time, last_login_time, status,password
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    a.agent_id,
+     a.agent_name,
+      a.login_name,
+      a.city_id,
+      a.contact_qq,
+      a.contact_wechat,
+      a.add_time,
+    a.update_time,
+    a.last_login_time,
+    a.status,
+    a.password,
+    a.creator_id as creatorId,
+    b.relname as creator
+
+    from agent_info a
+     LEFT  join admin_info b   on a.creator_id = b.aid
+    where a.agent_id = #{agentId,jdbcType=INTEGER}
+  </select>
+
+  <select id="queryByLoginName" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    agent_id,password,status
+    from agent_info
+    where login_name = #{agentName,jdbcType=VARCHAR}
+  </select>
+
+  <select id="checkUnique" parameterType="java.util.Map" resultMap="BaseResultMap">
+     select agent_id,agent_name from agent_info
+      WHERE  login_name=#{loginName}
+      <if test="agentId != null">
+        and agent_id !=#{agentId}
+      </if>
+
+
+  </select>
+
+
+  <insert id="insertSelective" parameterType="com.melot.talkee.agent.domain.AgentInfo">
+    <selectKey keyProperty="agentId" order="BEFORE"  resultType="java.lang.Integer" >
+    select nextval('seq_agent_info')
+    </selectKey>
+    insert into agent_info
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="agentId != null">
+        agent_id,
+      </if>
+      <if test="agentName != null">
+        agent_name,
+      </if>
+      <if test="loginName != null">
+        login_name,
+      </if>
+      <if test="cityId != null">
+        city_id,
+      </if>
+      <if test="contactqq != null">
+        contact_qq,
+      </if>
+      <if test="contactWechat != null">
+        contact_wechat,
+      </if>
+      <if test="addTime != null">
+        add_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="lastLoginTime != null">
+        last_login_time,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="password != null">
+        password,
+      </if>
+      <if test="creatorId != null">
+        creator_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="agentId != null">
+        #{agentId,jdbcType=INTEGER},
+      </if>
+      <if test="agentName != null">
+        #{agentName,jdbcType=VARCHAR},
+      </if>
+      <if test="loginName != null">
+        #{loginName,jdbcType=VARCHAR},
+      </if>
+      <if test="cityId != null">
+        #{cityId,jdbcType=INTEGER},
+      </if>
+      <if test="contactqq != null">
+        #{contactqq,jdbcType=VARCHAR},
+      </if>
+      <if test="contactWechat != null">
+        #{contactWechat,jdbcType=VARCHAR},
+      </if>
+      <if test="addTime != null">
+        #{addTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastLoginTime != null">
+        #{lastLoginTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="password != null">
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="creatorId != null">
+        #{creatorId,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+
+
+  <update id="updateByPrimaryKeySelective" parameterType="com.melot.talkee.agent.domain.AgentInfo">
+    update agent_info
+    <set>
+      <if test="agentName != null">
+        agent_name = #{agentName,jdbcType=VARCHAR},
+      </if>
+      <if test="loginName != null">
+        login_name = #{loginName,jdbcType=VARCHAR},
+      </if>
+      <if test="cityId != null">
+        city_id = #{cityId,jdbcType=INTEGER},
+      </if>
+      <if test="contactqq != null">
+        contact_qq = #{contactqq,jdbcType=VARCHAR},
+      </if>
+      <if test="contactWechat != null">
+        contact_wechat = #{contactWechat,jdbcType=VARCHAR},
+      </if>
+      <if test="addTime != null">
+        add_time = #{addTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastLoginTime != null">
+        last_login_time = #{lastLoginTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="password != null">
+        password = #{password,jdbcType=VARCHAR},
+      </if>
+
+      <if test="closeReason != null">
+        close_reason = #{closeReason,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where agent_id = #{agentId,jdbcType=INTEGER}
+  </update>
+
+
+
+  <!--二级代理列表 -->
+
+
+
+
+
+</mapper>

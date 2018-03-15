@@ -1,0 +1,594 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.melot.talkee.agent.mapper.AgentOrderViewMapper">
+
+
+    <select id="queryAgentOrderCount" parameterType="java.util.Map" resultType="java.lang.Integer">
+
+        select count(*) from agent_order_info_detail
+        <where>
+            <if test="startDate != null">
+                <![CDATA[    and affirm_time > #{startDate}]]>
+            </if>
+            <if test="endDate != null">
+                <![CDATA[   and affirm_time < #{endDate} ]]>
+            </if>
+            <if test="agentId != null">
+                and agent_id=#{agentId}
+            </if>
+            <if test="departmentId != null">
+                and department_id= #{departmentId}
+            </if>
+            <if test="ccIds !=null">
+                and cc_id in
+                <foreach collection="ccIds" item="ccid" open="(" separator="," close=")">
+                    #{ccid}
+                </foreach>
+            </if>
+        </where>
+
+    </select>
+
+    <select id="queryAgentOrderList" parameterType="java.util.Map"
+            resultType="com.melot.talkee.agent.domain.AgentOrderInfo">
+        select
+        agent_id as agentId,
+        agent_name as agentName,
+        channel_id as channelId,
+        affirm_time as affirmTime,
+        cn_nickname as cnNickName,
+        en_nickname as enNickName,
+        department_name as departmentName,
+        orderid as orderId,
+        trade_order_type as tradeOrderType,
+        amount as amount,
+        ccname as ccname,
+        parentagentname as parentAgentName,
+        parentchannelid as parentChannelId
+        from agent_order_info_detail
+        <where>
+            <if test="startDate != null">
+                <![CDATA[    and affirm_time > #{startDate}]]>
+            </if>
+            <if test="endDate != null">
+                <![CDATA[   and affirm_time < #{endDate} ]]>
+            </if>
+            <if test="agentId != null">
+                and agent_id=#{agentId}
+            </if>
+            <if test="departmentId != null">
+                and department_id= #{departmentId}
+            </if>
+            <if test="ccIds !=null">
+                and cc_id in
+                <foreach collection="ccIds" item="ccid" open="(" separator="," close=")">
+                    #{ccid}
+                </foreach>
+            </if>
+        </where>
+
+        ORDER by affirm_time desc
+        <if test="limit!=null and offset!=null">
+            limit #{limit} offset #{offset}
+        </if>
+
+    </select>
+
+    <select id="queryAgentOrderStat" parameterType="java.util.Map" resultType="java.util.HashMap">
+        select
+        case when newOrderAmount is null then 0 else newOrderAmount end as neworderamount,
+        case when renewOrderAmount is null then 0 else renewOrderAmount end as reneworderamount
+        from (
+        select sum(amount) as renewOrderAmount from agent_order_info_detail
+        <where>
+            trade_order_type=2
+            <if test="startDate != null">
+                <![CDATA[    and affirm_time > #{startDate}]]>
+            </if>
+            <if test="endDate != null">
+                <![CDATA[   and affirm_time < #{endDate} ]]>
+            </if>
+            <if test="agentId != null">
+                and agent_id=#{agentId}
+            </if>
+            <if test="departmentId != null">
+                and department_id= #{departmentId}
+            </if>
+            <if test="ccIds !=null">
+                and cc_id in
+                <foreach collection="ccIds" item="ccid" open="(" separator="," close=")">
+                    #{ccid}
+                </foreach>
+            </if>
+        </where>
+
+        ) a LEFT join (
+        select sum(amount) as newOrderAmount from agent_order_info_detail
+        <where>
+            trade_order_type=1
+            <if test="startDate != null">
+                <![CDATA[    and affirm_time > #{startDate}]]>
+            </if>
+            <if test="endDate != null">
+                <![CDATA[   and affirm_time < #{endDate} ]]>
+            </if>
+            <if test="agentId != null">
+                and agent_id=#{agentId}
+            </if>
+            <if test="departmentId != null">
+                and department_id= #{departmentId}
+            </if>
+            <if test="ccIds !=null">
+                and cc_id in
+                <foreach collection="ccIds" item="ccid" open="(" separator="," close=")">
+                    #{ccid}
+                </foreach>
+            </if>
+        </where>
+
+        ) b on 1=1
+
+    </select>
+
+    <select id="queryAgentSalaryList" parameterType="java.util.Map"
+            resultType="com.melot.talkee.agent.domain.AgentSalaryInfo">
+        select
+        a.agent_id as agentId,
+        b.agent_name as agentName,
+        c.relname as ccname,
+        a.channel_id as channelId,
+        p.department_name as departmentName,
+        #{month} as month,
+        case when d.sum is null then 0 else d.sum end as newOrderAmount,
+        case when d.ordercount is null then 0 else d.ordercount end as newOrderCount ,
+        case when e.sum is null then 0 else e.sum end as renewOrderAmount,
+        case when e.ordercount is null then 0 else e.ordercount end as renewOrderCount,
+        case when f.count is null then 0 else f.count end as registerCount
+        <if test="export">
+            ,
+            g.account_name as accountName,
+            g.account_address as accountAddress,
+            g.account_no as accountNo,
+            b.login_name as phoneNum
+        </if>
+        FROM agent_admin_rel a
+        LEFT JOIN agent_info b on a.agent_id=b.agent_id
+        LEFT JOIN admin_info c on c.aid=a.aid
+        LEFT JOIN admin_department_info p on p.department_id=a.department_id
+        LEFT JOIN view_agent_neworder d on d.channel_id=a.channel_id and d.month=#{month}
+        LEFT JOIN view_agent_reneworder e on e.channel_id=a.channel_id and e.month=#{month}
+        LEFT JOIN view_agent_registeruser f on f.channel_id=a.channel_id and f.month=#{month}
+        <if test="export">
+            LEFT JOIN agent_account_info g on a.agent_id=g.agent_id
+        </if>
+        <where>
+            <if test="agentId != null">
+                and a.agent_id=#{agentId}
+            </if>
+            <if test="departmentId != null">
+                and a.department_id =#{departmentId}
+            </if>
+            <if test="ccIds !=null">
+                and a.aid in
+                <foreach collection="ccIds" item="ccid" open="(" separator="," close=")">
+                    #{ccid}
+                </foreach>
+            </if>
+        </where>
+
+        ORDER by a.channel_id
+        <if test="limit!=null and offset!=null">
+            offset #{offset} limit #{limit}
+        </if>
+    </select>
+
+    <select id="queryAgentSalaryCount" parameterType="java.util.Map" resultType="java.lang.Integer">
+        select count(*) from agent_admin_rel a
+        <where>
+            <if test="agentId != null">
+                and a.agent_id=#{agentId}
+            </if>
+            <if test="departmentId != null">
+                and a.department_id =#{departmentId}
+            </if>
+            <if test="ccIds !=null">
+                and a.aid in
+                <foreach collection="ccIds" item="ccid" open="(" separator="," close=")">
+                    #{ccid}
+                </foreach>
+            </if>
+        </where>
+
+    </select>
+
+
+    <select id="queryAgentSalaryStat" parameterType="java.util.Map" resultType="java.util.HashMap">
+        select
+        sum(newOrderAmount) as newAmount,
+        sum(renewOrderAmount) as renewOrderAmount,
+        sum(registerCount) as registerCount
+        from (
+        select
+        a.agent_id as agentId,
+        b.agent_name as agentName,
+        c.relname as ccname,
+        a.channel_id as channelId,
+        #{month} as month,
+        case when d.sum is null then 0 else d.sum end as newOrderAmount,
+        case when d.ordercount is null then 0 else d.ordercount end as newOrderCount ,
+        case when e.sum is null then 0 else e.sum end as renewOrderAmount,
+        case when e.ordercount is null then 0 else e.ordercount end as renewOrderCount,
+        case when f.count is null then 0 else f.count end as registerCount
+        FROM agent_admin_rel a
+        LEFT JOIN agent_info b on a.agent_id=b.agent_id
+        LEFT JOIN admin_info c on c.aid=a.aid
+        LEFT JOIN view_agent_neworder d on d.channel_id=a.channel_id and d.month=#{month}
+        LEFT JOIN view_agent_reneworder e on e.channel_id=a.channel_id and e.month=#{month}
+        LEFT JOIN view_agent_registeruser f on f.channel_id=a.channel_id and f.month=#{month}
+        <where>
+            <if test="agentId != null">
+                and a.agent_id=#{agentId}
+            </if>
+            <if test="departmentId != null">
+                and a.department_id =#{departmentId}
+            </if>
+            <if test="ccIds !=null">
+                and a.aid in
+                <foreach collection="ccIds" item="ccid" open="(" separator="," close=")">
+                    #{ccid}
+                </foreach>
+            </if>
+        </where>
+        ) a
+
+    </select>
+
+    <select id="queryAgentCount" parameterType="java.util.Map" resultType="java.lang.Integer">
+        select count (*) from
+        agent_admin_rel a LEFT JOIN agent_info b on a.agent_id= b.agent_id
+        <where>
+            <if test="startDate != null">
+                <![CDATA[    and b.add_time > #{startDate}]]>
+            </if>
+            <if test="endDate != null">
+                <![CDATA[   and b.add_time < #{endDate} ]]>
+            </if>
+            <if test="agentId != null">
+                and a.agent_id=#{agentId}
+            </if>
+            <if test="departmentId != null">
+                and a.department_id= #{departmentId}
+            </if>
+            <if test="status !=null">
+                and b.status=#{status}
+            </if>
+            <if test="ccIds !=null">
+                and a.aid in
+                <foreach collection="ccIds" item="ccid" open="(" separator="," close=")">
+                    #{ccid}
+                </foreach>
+            </if>
+        </where>
+
+    </select>
+
+    <select id="queryAgentList" parameterType="java.util.Map"
+            resultType="com.melot.talkee.agent.domain.SubAgentInfo">
+        select
+        a.channel_id as channelId,
+        a.agent_id as agentId,
+        b.agent_name as agentName,
+        b.add_time as addTime,
+        b.status as status,
+        e.relname as adminName,
+        f.department_name as departmentName,
+        case when c.total is null then 0 else c.total end as registerCount,
+        case when d.total is null then 0 else d.total end as subAgentCount
+        from agent_admin_rel a
+        LEFT JOIN agent_info b on a.agent_id=b.agent_id
+        LEFT JOIN admin_info e on a.aid=e.aid
+        LEFT JOIN admin_department_info f on a.department_id=f.department_id
+        LEFT JOIN view_sub_agent_total d on a.agent_id=d.agent_id
+        LEFT JOIN view_agent_resigter_user_total c on c.channel_id=a.channel_id
+        <where>
+            <if test="startDate != null">
+                <![CDATA[    and b.add_time > #{startDate}]]>
+            </if>
+            <if test="endDate != null">
+                <![CDATA[   and b.add_time < #{endDate} ]]>
+            </if>
+            <if test="agentId != null">
+                and a.agent_id=#{agentId}
+            </if>
+            <if test="departmentId != null">
+                and a.department_id= #{departmentId}
+            </if>
+            <if test="status !=null">
+                and b.status=#{status}
+            </if>
+            <if test="ccIds !=null">
+                and a.aid in
+                <foreach collection="ccIds" item="ccid" open="(" separator="," close=")">
+                    #{ccid}
+                </foreach>
+            </if>
+        </where>
+        ORDER by b.add_time desc
+        <if test="limit !=null and offset !=null">
+            limit #{limit} offset #{offset}
+        </if>
+    </select>
+
+    <select id="queryAgentStatusStat" parameterType="java.util.Map" resultType="java.util.HashMap">
+        select * from (
+        select count (*) as validCount from
+        agent_admin_rel a LEFT JOIN agent_info b on a.agent_id= b.agent_id
+        <where>b.status=1
+            <if test="startDate != null">
+                <![CDATA[    and b.add_time > #{startDate}]]>
+            </if>
+            <if test="endDate != null">
+                <![CDATA[   and b.add_time < #{endDate} ]]>
+            </if>
+            <if test="agentId != null">
+                and a.agent_id=#{agentId}
+            </if>
+            <if test="departmentId != null">
+                and a.department_id= #{departmentId}
+            </if>
+            <if test="ccIds !=null">
+                and a.aid in
+                <foreach collection="ccIds" item="ccid" open="(" separator="," close=")">
+                    #{ccid}
+                </foreach>
+            </if>
+        </where>
+        ) a
+        LEFT JOIN (
+        select count (*) as invalidCount from
+        agent_admin_rel a LEFT JOIN agent_info b on a.agent_id= b.agent_id
+        <where>b.status=0
+            <if test="startDate != null">
+                <![CDATA[    and b.add_time > #{startDate}]]>
+            </if>
+            <if test="endDate != null">
+                <![CDATA[   and b.add_time < #{endDate} ]]>
+            </if>
+            <if test="agentId != null">
+                and a.agent_id=#{agentId}
+            </if>
+            <if test="departmentId != null">
+                and a.department_id= #{departmentId}
+            </if>
+            <if test="ccIds !=null">
+                and a.aid in
+                <foreach collection="ccIds" item="ccid" open="(" separator="," close=")">
+                    #{ccid}
+                </foreach>
+            </if>
+        </where>
+        ) b on 1=1
+    </select>
+
+    <select id="querySubAgentCount" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+        select    total from view_sub_agent_total
+        where  agent_id=#{agentId}
+    </select>
+
+    <select id="queryRegisterUserCount" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+        select   b.total from agent_admin_rel a LEFT join view_agent_resigter_user_total b  on a.channel_id=b.channel_id
+        where  a.agent_id=#{agentId}
+    </select>
+
+    <select id="getSubAgent" parameterType="java.util.Map"
+            resultType="com.melot.talkee.agent.domain.SubAgentInfo">
+        select
+        a.channel_id as channelId,
+        b.agent_name as agentName,
+        c.department_name as departmentName,
+        d.relname as adminName,
+        b.add_time as addTime,
+        b.status,
+        e.agent_name as fatherAgentName,
+        a.parent_agent_id as parentAgentId,
+        f.channel_id as parentChannelId
+        from
+        agent_admin_rel a
+        left join agent_info b on a.agent_id=b.agent_id
+        LEFT JOIN admin_department_info c on a.department_id=c.department_id
+        LEFT JOIN admin_info d on a.aid=d.aid
+        LEFT JOIN agent_info e on a.parent_agent_id=e.agent_id
+        LEFT JOIN agent_admin_rel f on e.agent_id=f.agent_id
+        where a.parent_agent_id=#{agentId,jdbcType=INTEGER}
+        ORDER by b.add_time desc
+        <if test="limit !=null and offset != null">
+            limit #{limit } offset #{offset}
+        </if>
+
+    </select>
+
+
+    <select id="getAgentStudent" parameterType="java.util.Map"
+            resultType="com.melot.talkee.agent.domain.AgentStudentInfo">
+        select
+        a.agent_id as agentId,
+        b.agent_name as agentName,
+        c.cn_nickname as cnNickName,
+        c.en_nickname as enNickName,
+        d.relname as ccname,
+        e.relname as crname,
+        cc.register_time as registerTime,
+        a.channel_id as channelId
+        from
+        agent_admin_rel a
+        LEFT JOIN agent_info b on a.agent_id=b.agent_id
+        LEFT JOIN info_user_register cc on cc.channel_id= a.channel_id
+        LEFT JOIN info_user_student c on cc.user_id=c.user_id
+        LEFT JOIN admin_info d on d.aid=c.cc_id
+        LEFT JOIN admin_info e on e.aid=c.cr_id
+
+        where a.agent_id=#{agentId,jdbcType=INTEGER}
+        ORDER BY cc.register_time desc
+        <if test="limit !=null and offset != null">
+            limit #{limit } offset #{offset}
+        </if>
+    </select>
+
+    <select id="queryMySalaryCount" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+  select count(*) from
+  (select month from view_agent_neworder where channel_id=#{channelId}
+    union
+  select month from view_agent_reneworder where channel_id=#{channelId}
+   union
+   select month from view_agent_registeruser where channel_id=#{channelId}
+ ) a
+    </select>
+
+    <select id="queryMySalaryList" parameterType="java.util.Map"
+            resultType="com.melot.talkee.agent.domain.AgentSalaryInfo">
+        select
+        a.month,
+        case when c.sum is null then 0 else c.sum end as newOrderAmount,
+        case when c.ordercount is null then 0 else c.ordercount end as newOrderCount ,
+        case when d.sum is null then 0 else d.sum end as renewOrderAmount,
+        case when d.ordercount is null then 0 else d.ordercount end as renewOrderCount,
+        case when b.count is null then 0 else b.count end as registerCount
+        from
+        (select month from view_agent_neworder where channel_id=#{channelId}
+        union
+        select month from view_agent_reneworder where channel_id=#{channelId}
+        union
+        select month from view_agent_registeruser where channel_id=#{channelId}
+        ) a
+        LEFT JOIN view_agent_registeruser b on a.month=b.month and b.channel_id=#{channelId}
+        LEFT JOIN view_agent_neworder c on a.month=c.month and c.channel_id=#{channelId}
+        LEFT JOIN view_agent_reneworder d on a.month=d.month and d.channel_id=#{channelId}
+        order by a.month DESC
+        <if test="limit !=null and offset != null">
+            limit #{limit } offset #{offset}
+        </if>
+    </select>
+
+    <select id="queryAgentListByName" parameterType="map"
+            resultType="com.melot.talkee.agent.domain.SubAgentInfo">
+        select
+         a.agent_id as agentId,
+         a.agent_name as agentName,
+         b.channel_id as channelId
+         from  agent_info a LEFT JOIN agent_admin_rel b  on a.agent_id=b.agent_id
+         where
+         1=1
+          <if test="agentName!=null">
+          and    (
+              UPPER (a.agent_name ) like concat('%',#{agentName},'%')
+              <if test="channelId!=null">
+                  or b.channel_id=#{channelId}
+              </if>
+              )
+          </if>
+         order by a.agent_name  limit 20
+    </select>
+
+
+    <select id="queryAgentStudentCount" parameterType="map" resultType="java.lang.Integer">
+        select count(*) from v_agent_student_info
+        where channel_id=#{channelId}
+        <if test="startDate !=null">
+            and   <![CDATA[register_time >#{startDate}]]>
+        </if>
+        <if test="endDate !=null">
+            and   <![CDATA[register_time <#{endDate}]]>
+        </if>
+
+        <if test="queryKey !=null">
+            and (
+            UPPER (en_nickname) like '%'||#{queryKey}||'%'
+            or UPPER (cn_nickname) like '%'||#{queryKey}||'%'
+            or UPPER (login_name) like '%'||#{queryKey}||'%'
+            )
+        </if>
+
+    </select>
+
+    <sql id="queryStuentSql">
+        <if test="startDate !=null">
+            and   <![CDATA[register_time >#{startDate}]]>
+        </if>
+        <if test="endDate !=null">
+            and   <![CDATA[register_time <#{endDate}]]>
+        </if>
+
+        <if test="queryKey !=null">
+            and (
+            UPPER (en_nickname) like '%'||#{queryKey}||'%'
+            or UPPER (cn_nickname) like '%'||#{queryKey}||'%'
+            or UPPER (login_name) like '%'||#{queryKey}||'%'
+            )
+        </if>
+
+    </sql>
+
+    <select id="queryAgentStudentStat" parameterType="map" resultType="java.util.HashMap">
+    select  a.agent_name as agentName,
+      a.add_time as addTime,
+      a.status ,
+      b.channel_id channelId,
+      c.register ,
+      d.demo,
+      e.pay,
+      f.amount::integer
+ from agent_info a LEFT JOIN  agent_admin_rel b on a.agent_id=b.agent_id
+        LEFT JOIN (
+         select count(*) as register from v_agent_student_info where channel_id=#{channelId}
+       <include refid="queryStuentSql"/>
+
+        )c on 1=1
+        LEFT JOIN (
+        SELECT  count(*) as demo from  v_agent_student_info where channel_id=#{channelId} and state=1
+        <include refid="queryStuentSql"/>
+        ) d on 1=1
+        LEFT JOIN (
+        select count(*) as pay from v_agent_student_info where channel_id=#{channelId} and state=2
+        <include refid="queryStuentSql"/>
+        )e on 1=1
+        LEFT JOIN (
+        select sum(payamount) as amount from v_agent_student_info where channel_id=#{channelId} and state=2
+        <include refid="queryStuentSql"/>
+        ) f on 1=1
+
+         where b.channel_id=#{channelId}
+
+
+    </select>
+
+
+    <select id="queryAgentStudentInfoList" parameterType="map"
+            resultType="com.melot.talkee.agent.domain.AgentStudentInfo">
+        select
+         user_id as userId,
+        cn_nickname as cnNickName,
+        en_nickname as enNickName,
+        cc_name as ccname,
+        crname as crname,
+        relationship as introducer,
+        register_time as registerTime,
+        login_name as loginName,
+        relationship as introducerLoginName,
+        introducer_cn_nickname as introducerCnNickName,
+        introducer_en_nickname as introducerEnNickName,
+        payAmount as payAmount,state
+        from
+        v_agent_student_info
+        WHERE channel_id=#{channelId}
+        <include refid="queryStuentSql"/>
+
+        ORDER by register_time DESC
+
+        <if test="limit!=null and offset!=null">
+            limit #{limit} offset #{offset}
+        </if>
+
+
+    </select>
+
+</mapper>

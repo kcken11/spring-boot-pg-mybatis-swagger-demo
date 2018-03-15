@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.melot.talkee.agent;
 
 
 import org.springframework.context.annotation.Bean;
@@ -20,7 +20,7 @@ public class Swagger2 {
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo())
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("com.example.demo.controller"))
+                .apis(RequestHandlerSelectors.basePackage("com.melot.talkee.agent.controller"))
                 .paths(PathSelectors.any())
                 .build();
     }

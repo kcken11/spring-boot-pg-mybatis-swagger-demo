@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.melot.talkee.agent;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

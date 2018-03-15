@@ -1,4 +1,4 @@
-package com.example.demo.domain;
+package com.melot.talkee.agent.domain;
 
 import java.util.Date;
 

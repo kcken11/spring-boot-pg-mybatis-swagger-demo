@@ -1,4 +1,4 @@
-package com.example.demo.domain;
+package com.melot.talkee.agent.domain;
 
 /**
  * Created by mn on 2018/3/14.

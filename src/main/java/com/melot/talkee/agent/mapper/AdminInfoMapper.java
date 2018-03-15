@@ -1,6 +1,6 @@
-package com.example.demo.mapper;
+package com.melot.talkee.agent.mapper;
 
-import com.example.demo.domain.AdminInfo;
+import com.melot.talkee.agent.domain.AdminInfo;
 
 public interface AdminInfoMapper {
     int deleteByPrimaryKey(Integer aid);

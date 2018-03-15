@@ -1,4 +1,4 @@
-package com.example.demo.task;
+package com.melot.talkee.agent.task;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;

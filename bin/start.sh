@@ -80,7 +80,7 @@ done
 
 
 #需要启动的Java主程序（main方法类） ##此处需根据需要修改
-APP_MAINCLASS=com.example.demo.DemoApplication
+APP_MAINCLASS=DemoApplication
 
 #拼凑完整的classpath参数，包括指定lib目录下所有的jar
 CLASSPATH=$CLASSPATH$PATH_SPLIT$APP_HOME$PATH_SPLIT$CLASS_DIR
