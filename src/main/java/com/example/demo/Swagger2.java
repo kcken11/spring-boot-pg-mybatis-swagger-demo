@@ -27,7 +27,7 @@ public class Swagger2 {
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("Spring Boot中使用Swagger2构建RESTful APIs")
+                .title("Talkee 代理商微服务 restful api")
                 .description("更多Spring Boot相关文章请关注：http://spring.io")
                 .termsOfServiceUrl("http://yanxxcloud.cn/")
                 .contact(" 燕为（wei.yan@melot.cn）")
